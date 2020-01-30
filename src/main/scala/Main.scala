@@ -9,14 +9,14 @@ object Main extends App {
 
   implicit val system: ActorSystem = ActorSystem("slack")
 
-  val token = sys.env("SLACK_APP_TOKEN")
+  val token = sys.env.getOrElse("SLACK_APP_TOKEN", "asd")
   val slackApiClient: SlackApiClient = SlackApiClient(token)
 
-  val channel = "@carmel.shupak"
+  val channel = "@some.user"
   val text = "some text"
 
   val task = for {
-    _ <- slackApiClient.postChatMessage(channel, text)
+    _ <- slackApiClient.postChatMessage(channel, text) recover {case _ => "failed"}
     terminating <- system.terminate()
   } yield terminating
 
